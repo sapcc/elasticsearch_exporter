@@ -1,0 +1,4 @@
+package: github.com/sapcc/elasticsearch_exporter
+import:
+- package: github.com/prometheus/client_golang
+- package: github.com/prometheus/client_golang/prometheus

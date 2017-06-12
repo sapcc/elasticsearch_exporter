@@ -35,7 +35,11 @@ func main() {
 	var (
 		listenAddress      = flag.String("web.listen-address", ":9108", "Address to listen on for web interface and telemetry.")
 		metricsPath        = flag.String("web.telemetry-path", "/metrics", "Path under which to expose metrics.")
-		esURI              = flag.String("es.uri", "http://localhost:9200", "HTTP API address of an Elasticsearch node.")
+		esHostname         = flag.String("es.hostname", "localhost", "hostname of an Elasticsearch node, where client http is enabled.")
+		esProtocol         = flag.String("es.protocol", "http", "http/https protocol of an Elasticsearch node")
+		esPort             = flag.String("es.port", "9200", "Port of an Elasticsearch node 9200 or 443")
+		esUser             = flag.String("es.user", "", "HTTP username for basic auth of an Elasticsearch node.")
+		esPassword         = flag.String("es.password", "", "HTTP password for basic auth of an Elasticsearch node.")
 		esTimeout          = flag.Duration("es.timeout", 5*time.Second, "Timeout for trying to get stats from Elasticsearch.")
 		esAllNodes         = flag.Bool("es.all", false, "Export stats for all nodes in the cluster.")
 		esCA               = flag.String("es.ca", "", "Path to PEM file that conains trusted CAs for the Elasticsearch connection.")
@@ -44,11 +48,19 @@ func main() {
 	)
 	flag.Parse()
 
-	nodesStatsURI := *esURI + "/_nodes/_local/stats"
-	if *esAllNodes {
-		nodesStatsURI = *esURI + "/_nodes/stats"
+	var authString string
+
+	if *esUser != "" && *esPassword != "" {
+		authString = *esUser + ":" + *esPassword + "@"
+	} else {
+		authString = ""
 	}
-	clusterHealthURI := *esURI + "/_cluster/health"
+
+	nodesStatsURI := *esProtocol + "://" + authString + *esHostname + ":" + *esPort + "/_nodes/_local/stats"
+	if *esAllNodes {
+		nodesStatsURI = *esProtocol + "://" + authString + *esHostname + ":" + *esPort + "/_nodes/stats"
+	}
+	clusterHealthURI := *esProtocol + "://" + *esHostname + ":" + *esPort + "/_cluster/health"
 
 	exporter := NewExporter(nodesStatsURI, clusterHealthURI, *esTimeout, *esAllNodes, createElasticSearchTLSConfig(*esCA, *esClientCert, *esClientPrivateKey))
 	prometheus.MustRegister(exporter)

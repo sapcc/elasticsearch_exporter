@@ -1,14 +1,14 @@
-# Elasticsearch Exporter [![Build Status](https://travis-ci.org/justwatchcom/elasticsearch_exporter.svg?branch=master)](https://travis-ci.org/justwatchcom/elasticsearch_exporter)
+# Elasticsearch Exporter
 
-[![Docker Pulls](https://img.shields.io/docker/pulls/justwatch/elasticsearch_exporter.svg?maxAge=604800)](https://hub.docker.com/r/justwatch/elasticsearch_exporter)
-[![Go Report Card](https://goreportcard.com/badge/github.com/justwatchcom/elasticsearch_exporter)](https://goreportcard.com/report/github.com/justwatchcom/elasticsearch_exporter)
+[![Go Report Card](https://goreportcard.com/badge/github.com/sapcc/elasticsearch_exporter)](https://goreportcard.com/report/github.com/sapcc/elasticsearch_exporter)
 
 Prometheus exporter for various metrics about ElasticSearch, written in Go.
+Basic Authentication was added to support connections via auth proxies or Elasticsearch plugins like [Elasticsearch rest only](https://readonlyrest.com/).
 
 ### Installation
 
 ```bash
-go get -u github.com/justwatchcom/elasticsearch_exporter
+go get -u github.com/sapcc/elasticsearch_exporter
 ```
 
 ### Configuration
@@ -19,7 +19,11 @@ elasticsearch_exporter --help
 
 | Argument              | Description |
 | --------              | ----------- |
-| es.uri                | Address (host and port) of the Elasticsearch node we should connect to. This could be a local node (`localhost:8500`, for instance), or the address of a remote Elasticsearch server.
+| es.hostname           | Hostname of an Elasticsearch node, where client http is enabled. Default: localhost.
+| es.protocol           | Protocol of an Elasticsearch node, where client http is enabled. Default: http.
+| es.port               | Port of an Elasticsearch node, where client http is enabled. Default: 9200.
+| es.user               | Username for basic authenticiation of an Elasticsearch node, where client http is enabled.
+| es.password           | Password for basic authenticiation of an Elasticsearch node, where client http is enabled.
 | es.all                | If true, query stats for all nodes in the cluster, rather than just the node we connect to.
 | es.timeout            | Timeout for trying to get stats from Elasticsearch. (ex: 20s) |
 | es.ca                 | Path to PEM file that contains trusted CAs for the Elasticsearch connection.
@@ -46,4 +50,5 @@ we'll attempt to report important values for both.
 ### Original author
 
 This package was originally created and mainted by [Eric Richardson](https://github.com/ewr),
-who transferred this repository to us in Jan 2017.
+who transferred this repository to justwatchcom in Jan 2017.
+Fork was done to add basic authentication, but this is a breaking change for old command line options from the justwatchcom/elasticsearch_exporter repo.
