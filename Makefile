@@ -20,12 +20,8 @@ LDFLAGS := -X main.Version=$(VERSION)
 
 GOFLAGS     := -ldflags "$(LDFLAGS)"
 
-BINARIES := monsoonctl
-CMDDIR   := cmd
-PKGDIR   := pkg
-PACKAGES := $(shell find $(CMDDIR) $(PKGDIR) -type d)
-GOFILES  := $(addsuffix /*.go,$(PACKAGES))
-GOFILES  := $(wildcard $(GOFILES))            
+BINARIES := elasticsearch_exporter
+GOFILES  := $(*.go)
 
 .PHONY: all clean bin/version 
 
