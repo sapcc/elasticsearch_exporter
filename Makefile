@@ -25,9 +25,6 @@ GOFILES  := $(*.go)
 
 .PHONY: all clean bin/version 
 
-deps: 	
-		glide install --strip-vendor
-
 all: $(BINARIES:%=bin/$(GOOS)/$(GOARCH)/%) bin/version
 
 bin/$(GOOS)/$(GOARCH)/%: $(GOFILES) Makefile
