@@ -10,50 +10,32 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-GO    := GO15VENDOREXPERIMENT=1 go
-PROMU := $(GOPATH)/bin/promu
-pkgs   = $(shell $(GO) list ./... | grep -v /vendor/)
-
-PREFIX                  ?= $(shell pwd)
-BIN_DIR                 ?= $(shell pwd)
-DOCKER_IMAGE_NAME       ?= elasticsearch-exporter
-DOCKER_IMAGE_TAG        ?= $(subst /,-,$(shell git rev-parse --abbrev-ref HEAD))
+DATE    = $(shell date +%Y%m%d%H%M) 
+VERSION = v$(DATE) 
+GOOS    ?= darwin
+GOARCH  ?= amd64
 
 
-all: format build test
+LDFLAGS := -X main.Version=$(VERSION)
 
-style:
-	@echo ">> checking code style"
-	@! gofmt -d $(shell find . -path ./vendor -prune -o -name '*.go' -print) | grep '^'
+GOFLAGS     := -ldflags "$(LDFLAGS)"
 
-test:
-	@echo ">> running tests"
-	@$(GO) test -short $(pkgs)
+BINARIES := monsoonctl
+CMDDIR   := cmd
+PKGDIR   := pkg
+PACKAGES := $(shell find $(CMDDIR) $(PKGDIR) -type d)
+GOFILES  := $(addsuffix /*.go,$(PACKAGES))
+GOFILES  := $(wildcard $(GOFILES))            
 
-format:
-	@echo ">> formatting code"
-	@$(GO) fmt $(pkgs)
+.PHONY: all clean bin/version 
 
-vet:
-	@echo ">> vetting code"
-	@$(GO) vet $(pkgs)
+all: $(BINARIES:%=bin/$(GOOS)/$(GOARCH)/%) bin/version
 
-build: promu
-	@echo ">> building binaries"
-	@$(PROMU) build --prefix $(PREFIX)
+bin/$(GOOS)/$(GOARCH)/%: $(GOFILES) Makefile
+	GOOS=$(GOOS) GOARCH=$(GOARCH) go build $(GOFLAGS) -v -i -o bin/$(GOOS)/$(GOARCH)/$* ./cmd/$*
 
-tarball: promu
-	@echo ">> building release tarball"
-	@$(PROMU) tarball --prefix $(PREFIX) $(BIN_DIR)
+bin/version:
+	echo elasticsearch_exporter.$(VERSION) > bin/version
 
-docker:
-	@echo ">> building docker image"
-	@docker build -t "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" .
-
-promu:
-	@GOOS=$(shell uname -s | tr A-Z a-z) \
-	        GOARCH=$(subst x86_64,amd64,$(patsubst i%86,386,$(shell uname -m))) \
-	        $(GO) get -u github.com/prometheus/promu
-
-.PHONY: all style format build test vet tarball docker promu
+clean:
+	rm -rf bin/*
