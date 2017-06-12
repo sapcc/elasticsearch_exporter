@@ -12,7 +12,7 @@
 # limitations under the License.
 DATE    = $(shell date +%Y%m%d%H%M) 
 VERSION = v$(DATE) 
-GOOS    ?= darwin
+GOOS    ?= linux
 GOARCH  ?= amd64
 
 
@@ -24,6 +24,10 @@ BINARIES := elasticsearch_exporter
 GOFILES  := $(*.go)
 
 .PHONY: all clean bin/version 
+
+deps: 	
+	  go get -v github.com/Masterminds/glide
+		glide install --strip-vendor
 
 all: $(BINARIES:%=bin/$(GOOS)/$(GOARCH)/%) bin/version
 
