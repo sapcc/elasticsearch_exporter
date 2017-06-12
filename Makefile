@@ -28,7 +28,7 @@ GOFILES  := $(*.go)
 all: $(BINARIES:%=bin/$(GOOS)/$(GOARCH)/%) bin/version
 
 bin/$(GOOS)/$(GOARCH)/%: $(GOFILES) Makefile
-	GOOS=$(GOOS) GOARCH=$(GOARCH) go build $(GOFLAGS) -v -i -o bin/$(GOOS)/$(GOARCH)/$* ./cmd/$*
+	GOOS=$(GOOS) GOARCH=$(GOARCH) go build $(GOFLAGS) -v -i -o bin/$(GOOS)/$(GOARCH)/$* ./*.go
 
 bin/version:
 	echo elasticsearch_exporter.$(VERSION) > bin/version
