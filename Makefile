@@ -26,7 +26,6 @@ GOFILES  := $(*.go)
 .PHONY: all clean bin/version 
 
 deps: 	
-	  go get -v github.com/Masterminds/glide
 		glide install --strip-vendor
 
 all: $(BINARIES:%=bin/$(GOOS)/$(GOARCH)/%) bin/version
